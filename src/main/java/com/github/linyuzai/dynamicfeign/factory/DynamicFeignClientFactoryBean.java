@@ -1,12 +1,12 @@
-package eason.linyuzai.dynamicfeign.factory;
+package com.github.linyuzai.dynamicfeign.factory;
 
 import java.util.Map;
 import java.util.Objects;
 
-import eason.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
-import eason.linyuzai.dynamicfeign.proxy.DynamicFeignProxy;
-import eason.linyuzai.dynamicfeign.targeter.FakeTargeter;
-import eason.linyuzai.dynamicfeign.targeter.Targeter;
+import com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
+import com.github.linyuzai.dynamicfeign.proxy.DynamicFeignProxy;
+import com.github.linyuzai.dynamicfeign.targeter.FakeTargeter;
+import com.github.linyuzai.dynamicfeign.targeter.Targeter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;

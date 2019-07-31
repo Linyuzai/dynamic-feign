@@ -1,7 +1,7 @@
-package eason.linyuzai.dynamicfeign.mapper;
+package com.github.linyuzai.dynamicfeign.mapper;
 
-import eason.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
-import eason.linyuzai.dynamicfeign.targeter.Targeter;
+import com.github.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
+import com.github.linyuzai.dynamicfeign.targeter.Targeter;
 import feign.Client;
 import feign.Feign;
 import feign.Target;

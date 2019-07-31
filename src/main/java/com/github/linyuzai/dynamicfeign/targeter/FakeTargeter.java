@@ -1,4 +1,4 @@
-package eason.linyuzai.dynamicfeign.targeter;
+package com.github.linyuzai.dynamicfeign.targeter;
 
 public class FakeTargeter {
 

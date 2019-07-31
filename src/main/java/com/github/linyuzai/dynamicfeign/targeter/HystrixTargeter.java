@@ -1,6 +1,6 @@
-package eason.linyuzai.dynamicfeign.targeter;
+package com.github.linyuzai.dynamicfeign.targeter;
 
-import eason.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
+import com.github.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
 import feign.Feign;
 import feign.Target;
 import feign.hystrix.FallbackFactory;

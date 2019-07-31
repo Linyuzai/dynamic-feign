@@ -1,4 +1,4 @@
-package eason.linyuzai.dynamicfeign;
+package com.github.linyuzai.dynamicfeign;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

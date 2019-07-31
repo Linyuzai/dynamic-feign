@@ -1,7 +1,7 @@
-package eason.linyuzai.dynamicfeign.annotation;
+package com.github.linyuzai.dynamicfeign.annotation;
 
-import eason.linyuzai.dynamicfeign.controller.DynamicFeignController;
-import eason.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
+import com.github.linyuzai.dynamicfeign.controller.DynamicFeignController;
+import com.github.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 

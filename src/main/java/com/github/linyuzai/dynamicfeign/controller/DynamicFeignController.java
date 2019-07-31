@@ -1,6 +1,6 @@
-package eason.linyuzai.dynamicfeign.controller;
+package com.github.linyuzai.dynamicfeign.controller;
 
-import eason.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
+import com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

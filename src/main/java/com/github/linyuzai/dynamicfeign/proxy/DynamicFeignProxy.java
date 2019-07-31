@@ -1,6 +1,6 @@
-package eason.linyuzai.dynamicfeign.proxy;
+package com.github.linyuzai.dynamicfeign.proxy;
 
-import eason.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
+import com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

@@ -1,4 +1,4 @@
-package eason.linyuzai.dynamicfeign;
+package com.github.linyuzai.dynamicfeign;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,7 +1,7 @@
-package eason.linyuzai.dynamicfeign.register;
+package com.github.linyuzai.dynamicfeign.register;
 
-import eason.linyuzai.dynamicfeign.annotation.EnableDynamicFeignClients;
-import eason.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
+import com.github.linyuzai.dynamicfeign.annotation.EnableDynamicFeignClients;
+import com.github.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
