@@ -11,7 +11,8 @@ public class FakeTargeter {
             return (T) defaultTargeter;
         } else if (real.getClass().getName().equals("org.springframework.cloud.openfeign.HystrixTargeter")) {
             return (T) hystrixTargeter;
+        } else {
+            throw new RuntimeException("FakeTargeter[" + real.getClass().getName() + "] not matched");
         }
-        return null;
     }
 }
