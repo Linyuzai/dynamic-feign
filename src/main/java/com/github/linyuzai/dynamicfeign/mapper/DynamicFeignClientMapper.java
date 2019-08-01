@@ -8,6 +8,8 @@ import feign.Target;
 import org.springframework.cloud.openfeign.FeignContext;
 import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
 
+import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,15 +23,16 @@ public class DynamicFeignClientMapper {
         return feignClientMap.values().stream().map(ConfigurableFeignClient::getEntity).collect(Collectors.toList());
     }
 
-    public static boolean isFeignOut(ConfigurableFeignClient client) {
-        return client != null && client.entity.feignOut;
+    public ConfigurableFeignClientEntity getConfigurableFeignClientEntity(String key) {
+        ConfigurableFeignClient client = feignClientMap.get(key);
+        return client == null ? null : client.entity;
     }
 
-    public ConfigurableFeignClient get(String key) {
+    public ConfigurableFeignClient getConfigurableFeignClient(String key) {
         return feignClientMap.get(key);
     }
 
-    public synchronized static void add(ConfigurableFeignClient client) {
+    public static void add(ConfigurableFeignClient client) {
         if (client.entity.key == null) {
             throw new RuntimeException("key is null");
         }
@@ -41,9 +44,9 @@ public class DynamicFeignClientMapper {
             if (client.entity.feignOut && client.entity.outUrl == null) {
                 throw new RuntimeException("outUrl is null when feignOut=true");
             }
-            client.in = client.newInstance(false);
+            client.in = client.newInstance(null);
             if (client.entity.outUrl != null) {
-                client.out = client.newInstance(true);
+                client.out = client.newInstance(client.entity.outUrl);
             }
             feignClientMap.put(client.entity.key, client);
         } else {
@@ -51,7 +54,7 @@ public class DynamicFeignClientMapper {
         }
     }
 
-    public synchronized static boolean update(ConfigurableFeignClientEntity entity) {
+    public static synchronized boolean update(ConfigurableFeignClientEntity entity) {
         if (entity.key == null) {
             throw new RuntimeException("key is null");
         }
@@ -60,10 +63,38 @@ public class DynamicFeignClientMapper {
             throw new RuntimeException("key not found");
         }
         if (entity.outUrl != null) {
+            Object out = client.newInstance(entity.outUrl);
             client.entity.outUrl = entity.outUrl;
-            client.out = client.newInstance(true);
+            client.out = out;
+        }
+        if (entity.feignOut && client.out == null) {
+            throw new RuntimeException("Set outUrl if you want feignOut");
         }
         client.entity.feignOut = entity.feignOut;
+        client.entity.feignMethod = entity.feignMethod;
+        return true;
+    }
+
+    public static synchronized boolean addMethodUrl(String key, String methodName, String outUrl) {
+        if (key == null) {
+            throw new RuntimeException("key is null");
+        }
+        if (outUrl == null) {
+            throw new RuntimeException("outUrl is null");
+        }
+        ConfigurableFeignClient client = feignClientMap.get(key);
+        if (client == null) {
+            throw new RuntimeException("key not found");
+        }
+        Object out = client.newInstance(outUrl);
+        if (client.entity.methodOutUrls == null) {
+            client.entity.methodOutUrls = new ConcurrentHashMap<>();
+        }
+        client.entity.methodOutUrls.put(methodName, outUrl);
+        if (client.methodOuts == null) {
+            client.methodOuts = new ConcurrentHashMap<>();
+        }
+        client.methodOuts.put(methodName, out);
         return true;
     }
 
@@ -73,6 +104,9 @@ public class DynamicFeignClientMapper {
         private String inUrl;
         private String outUrl;
         private boolean feignOut;
+        private boolean feignMethod;
+
+        private Map<String, String> methodOutUrls = Collections.emptyMap();
 
         public String getKey() {
             return key;
@@ -113,6 +147,22 @@ public class DynamicFeignClientMapper {
         public void setFeignOut(boolean feignOut) {
             this.feignOut = feignOut;
         }
+
+        public boolean isFeignMethod() {
+            return feignMethod;
+        }
+
+        public void setFeignMethod(boolean feignMethod) {
+            this.feignMethod = feignMethod;
+        }
+
+        public Map<String, String> getMethodOutUrls() {
+            return methodOutUrls;
+        }
+
+        public void setMethodOutUrls(Map<String, String> methodOutUrls) {
+            this.methodOutUrls = methodOutUrls;
+        }
     }
 
     public static class ConfigurableFeignClient {
@@ -124,6 +174,7 @@ public class DynamicFeignClientMapper {
         private DynamicFeignClientFactoryBean factory;
         private Object in;
         private Object out;
+        private Map<String, Object> methodOuts = Collections.emptyMap();
 
         private ConfigurableFeignClientEntity entity;
 
@@ -141,29 +192,37 @@ public class DynamicFeignClientMapper {
             this.entity = new ConfigurableFeignClientEntity();
         }
 
-        public Object newInstance(boolean out) {
-            if (out) {
-                if (client instanceof LoadBalancerFeignClient) {
-                    builder.client(((LoadBalancerFeignClient) client).getDelegate());
-                }
-                if (entity.outUrl == null) {
-                    throw new RuntimeException("out url is null");
-                }
-                String url = entity.outUrl;
-                if (!entity.outUrl.startsWith("http")) {
-                    url = "http://" + entity.outUrl;
-                }
-                return targeter.target(factory, builder, context,
-                        new Target.HardCodedTarget<>(entity.type, entity.key, url));
-            } else {
+        public Object newInstance(String url) {
+            if (url == null) {
                 builder.client(client);
                 return targeter.target(factory, builder, context,
                         new Target.HardCodedTarget<>(entity.type, entity.key, entity.inUrl));
+            } else {
+                if (client instanceof LoadBalancerFeignClient) {
+                    builder.client(((LoadBalancerFeignClient) client).getDelegate());
+                }
+                if (!url.startsWith("http")) {
+                    url = "http://" + entity.outUrl;
+                }
+                if (url.equals(entity.inUrl)) {
+                    return in;
+                }
+                return targeter.target(factory, builder, context,
+                        new Target.HardCodedTarget<>(entity.type, entity.key, url));
             }
         }
 
-        public Object dynamic() {
-            return entity.feignOut ? out : in;
+        public Object dynamic(Method method) {
+            if (entity.feignMethod) {
+                String key = method.getName();
+                if (entity.feignOut) {
+                    return methodOuts.getOrDefault(key, out);
+                } else {
+                    return methodOuts.getOrDefault(key, in);
+                }
+            } else {
+                return entity.feignOut ? out : in;
+            }
         }
 
         public FeignContext getContext() {
@@ -220,6 +279,14 @@ public class DynamicFeignClientMapper {
 
         public void setOut(Object out) {
             this.out = out;
+        }
+
+        public Map<String, Object> getMethodOuts() {
+            return methodOuts;
+        }
+
+        public void setMethodOuts(Map<String, Object> methodOuts) {
+            this.methodOuts = methodOuts;
         }
 
         public ConfigurableFeignClientEntity getEntity() {

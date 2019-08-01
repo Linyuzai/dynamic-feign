@@ -30,6 +30,6 @@ public class DynamicFeignProxy<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return method.invoke(feignClient.dynamic(), args);
+        return method.invoke(feignClient.dynamic(method), args);
     }
 }
