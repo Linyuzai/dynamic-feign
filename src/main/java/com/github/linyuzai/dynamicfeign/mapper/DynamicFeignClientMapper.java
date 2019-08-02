@@ -15,23 +15,51 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * feign clients存储配置类
+ */
 public class DynamicFeignClientMapper {
 
+    /**
+     * 微服务对应的feign map
+     */
     private static Map<String, ConfigurableFeignClient> feignClientMap = new ConcurrentHashMap<>();
 
+    /**
+     * 获得所有的feign client
+     *
+     * @return 所有的feign client
+     */
     public static List<ConfigurableFeignClientEntity> getFeignClientEntities() {
         return feignClientMap.values().stream().map(ConfigurableFeignClient::getEntity).collect(Collectors.toList());
     }
 
+    /**
+     * 获得某个微服务的feign配置
+     *
+     * @param key 微服务名称
+     * @return 某个微服务的feign配置
+     */
     public ConfigurableFeignClientEntity getConfigurableFeignClientEntity(String key) {
         ConfigurableFeignClient client = feignClientMap.get(key);
         return client == null ? null : client.entity;
     }
 
+    /**
+     * 获得某个微服务的feign client
+     *
+     * @param key 微服务名称
+     * @return 某个微服务的feign client
+     */
     public ConfigurableFeignClient getConfigurableFeignClient(String key) {
         return feignClientMap.get(key);
     }
 
+    /**
+     * 添加一个feign client，一般扫描配置的时候才会用到
+     *
+     * @param client 需要添加的client
+     */
     public static void add(ConfigurableFeignClient client) {
         if (client.entity.key == null) {
             throw new RuntimeException("key is null");
@@ -54,6 +82,12 @@ public class DynamicFeignClientMapper {
         }
     }
 
+    /**
+     * 更新某个feign配置
+     *
+     * @param entity 需要更新的feign配置
+     * @return 是否成功
+     */
     public static synchronized boolean update(ConfigurableFeignClientEntity entity) {
         if (entity.key == null) {
             throw new RuntimeException("key is null");
@@ -75,6 +109,14 @@ public class DynamicFeignClientMapper {
         return true;
     }
 
+    /**
+     * 添加方法对应的url
+     *
+     * @param key        微服务名称
+     * @param methodName 方法名称
+     * @param outUrl     url
+     * @return 是否成功
+     */
     public static synchronized boolean addMethodUrl(String key, String methodName, String outUrl) {
         if (key == null) {
             throw new RuntimeException("key is null");
@@ -98,10 +140,25 @@ public class DynamicFeignClientMapper {
         return true;
     }
 
+    /**
+     * feign client配置类
+     */
     public static class ConfigurableFeignClientEntity {
+        /**
+         * 微服务名称
+         */
         private String key;
+        /**
+         * feign接口
+         */
         private Class<?> type;
+        /**
+         * 内网服务间的url
+         */
         private String inUrl;
+        /**
+         * 
+         */
         private String outUrl;
         private boolean feignOut;
         private boolean feignMethod;

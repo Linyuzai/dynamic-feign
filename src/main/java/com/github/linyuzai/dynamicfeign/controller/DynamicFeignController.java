@@ -7,6 +7,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/dynamic-feign")
 public class DynamicFeignController {
 
+    /**
+     * 更新且只限于以下属性
+     * outUrl
+     * feignMethod
+     * feignOut
+     *
+     * @param entity 需要更新的属性
+     * @return 成功或异常
+     * @see com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper.ConfigurableFeignClientEntity#setOutUrl(String)
+     * @see com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper.ConfigurableFeignClientEntity#setFeignMethod(boolean)
+     * @see com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper.ConfigurableFeignClientEntity#setFeignOut(boolean)
+     */
     @PostMapping("/config")
     public Object setConfig(DynamicFeignClientMapper.ConfigurableFeignClientEntity entity) {
         try {
@@ -17,11 +29,26 @@ public class DynamicFeignController {
         }
     }
 
+    /**
+     * 获得当前配置属性
+     *
+     * @return 当前属性
+     * @see com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper.ConfigurableFeignClientEntity
+     */
     @GetMapping("/config")
     public Object getConfig() {
         return DynamicFeignClientMapper.getFeignClientEntities();
     }
 
+    /**
+     * 添加方法对应的url
+     *
+     * @param key        微服务名称@FeignClient中的值
+     * @param methodName 方法名
+     * @param outUrl     对应的feign地址
+     * @return 成功或异常
+     */
+    @PostMapping("/method-url/add")
     public Object addMethodOutUrl(@RequestParam String key, @RequestParam String methodName,
                                   @RequestParam String outUrl) {
         try {
