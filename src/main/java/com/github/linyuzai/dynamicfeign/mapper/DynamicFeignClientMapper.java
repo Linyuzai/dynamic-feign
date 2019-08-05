@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.FeignContext;
 import org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,13 +88,7 @@ public class DynamicFeignClientMapper {
      * @return 是否成功
      */
     public static synchronized boolean update(ConfigurableFeignClientEntity entity) {
-        if (entity.key == null) {
-            throw new RuntimeException("key is null");
-        }
-        ConfigurableFeignClient client = feignClientMap.get(entity.key);
-        if (client == null) {
-            throw new RuntimeException("key not found");
-        }
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(entity.key);
         if (entity.outUrl != null) {
             Object out = client.newInstance(entity.outUrl);
             client.entity.outUrl = entity.outUrl;
@@ -109,7 +102,7 @@ public class DynamicFeignClientMapper {
         return true;
     }
 
-    private static ConfigurableFeignClient getCheckedConfigurableFeignClient(String key) {
+    private static ConfigurableFeignClient getExistConfigurableFeignClient(String key) {
         if (key == null) {
             throw new RuntimeException("key is null");
         }
@@ -135,7 +128,7 @@ public class DynamicFeignClientMapper {
         if (methodName == null) {
             throw new RuntimeException("method name is null");
         }
-        ConfigurableFeignClient client = getCheckedConfigurableFeignClient(key);
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(key);
         Object out = client.newInstance(url);
         if (client.entity.methodUrls == null) {
             client.entity.methodUrls = new ConcurrentHashMap<>();
@@ -152,7 +145,7 @@ public class DynamicFeignClientMapper {
         if (methodName == null) {
             throw new RuntimeException("method name is null");
         }
-        ConfigurableFeignClient client = getCheckedConfigurableFeignClient(key);
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(key);
         if (client.entity.methodUrls != null) {
             client.entity.methodUrls.remove(methodName);
         }
@@ -163,7 +156,7 @@ public class DynamicFeignClientMapper {
     }
 
     public static synchronized boolean clearMethodUrl(String key) {
-        ConfigurableFeignClient client = getCheckedConfigurableFeignClient(key);
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(key);
         if (client.entity.methodUrls != null) {
             client.entity.methodUrls.clear();
         }
@@ -190,10 +183,16 @@ public class DynamicFeignClientMapper {
          */
         private String inUrl;
         /**
-         *
+         * 指定的url
          */
         private String outUrl;
+        /**
+         * 是否使用指定url
+         */
         private boolean feignOut;
+        /**
+         * 是否映射方法指定url
+         */
         private boolean feignMethod;
 
         private Map<String, String> methodUrls;
@@ -262,8 +261,17 @@ public class DynamicFeignClientMapper {
         private Client client;
         private Targeter targeter;
         private DynamicFeignClientFactoryBean factory;
+        /**
+         * 默认内网间调用的feign
+         */
         private Object in;
+        /**
+         * 指定url的feign
+         */
         private Object out;
+        /**
+         * 根据方法映射的feign
+         */
         private Map<String, Object> methodFeigns;
 
         private ConfigurableFeignClientEntity entity;
@@ -282,20 +290,39 @@ public class DynamicFeignClientMapper {
             this.entity = new ConfigurableFeignClientEntity();
         }
 
-        public Object newInstance(String url) {
+        /**
+         * 实例化feign
+         *
+         * @param url 如果为null，实例化in
+         * @return feign的实例
+         */
+        public synchronized Object newInstance(String url) {
             if (url == null) {
                 builder.client(client);
                 return targeter.target(factory, builder, context,
                         new Target.HardCodedTarget<>(entity.type, entity.key, entity.inUrl));
             } else {
-                if (client instanceof LoadBalancerFeignClient) {
-                    builder.client(((LoadBalancerFeignClient) client).getDelegate());
-                }
                 if (!url.startsWith("http")) {
-                    url = "http://" + entity.outUrl;
+                    url = "http://" + url;
                 }
                 if (url.equals(entity.inUrl)) {
                     return in;
+                }
+                if (url.equals(entity.outUrl)) {
+                    return out;
+                }
+                if (entity.methodUrls != null) {
+                    for (Map.Entry<String, String> entry : entity.methodUrls.entrySet()) {
+                        if (url.equals(entry.getValue())) {
+                            Object feign = methodFeigns.get(entry.getKey());
+                            if (feign != null) {
+                                return feign;
+                            }
+                        }
+                    }
+                }
+                if (client instanceof LoadBalancerFeignClient) {
+                    builder.client(((LoadBalancerFeignClient) client).getDelegate());
                 }
                 return targeter.target(factory, builder, context,
                         new Target.HardCodedTarget<>(entity.type, entity.key, url));
