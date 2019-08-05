@@ -109,6 +109,17 @@ public class DynamicFeignClientMapper {
         return true;
     }
 
+    private static ConfigurableFeignClient getCheckedConfigurableFeignClient(String key) {
+        if (key == null) {
+            throw new RuntimeException("key is null");
+        }
+        ConfigurableFeignClient client = feignClientMap.get(key);
+        if (client == null) {
+            throw new RuntimeException("key not found");
+        }
+        return client;
+    }
+
     /**
      * 添加方法对应的url
      *
@@ -118,16 +129,13 @@ public class DynamicFeignClientMapper {
      * @return 是否成功
      */
     public static synchronized boolean addMethodUrl(String key, String methodName, String url) {
-        if (key == null) {
-            throw new RuntimeException("key is null");
-        }
         if (url == null) {
-            throw new RuntimeException("outUrl is null");
+            throw new RuntimeException("url is null");
         }
-        ConfigurableFeignClient client = feignClientMap.get(key);
-        if (client == null) {
-            throw new RuntimeException("key not found");
+        if (methodName == null) {
+            throw new RuntimeException("method name is null");
         }
+        ConfigurableFeignClient client = getCheckedConfigurableFeignClient(key);
         Object out = client.newInstance(url);
         if (client.entity.methodUrls == null) {
             client.entity.methodUrls = new ConcurrentHashMap<>();
@@ -137,6 +145,31 @@ public class DynamicFeignClientMapper {
             client.methodFeigns = new ConcurrentHashMap<>();
         }
         client.methodFeigns.put(methodName, out);
+        return true;
+    }
+
+    public static synchronized boolean removeMethodUrl(String key, String methodName) {
+        if (methodName == null) {
+            throw new RuntimeException("method name is null");
+        }
+        ConfigurableFeignClient client = getCheckedConfigurableFeignClient(key);
+        if (client.entity.methodUrls != null) {
+            client.entity.methodUrls.remove(methodName);
+        }
+        if (client.methodFeigns != null) {
+            client.methodFeigns.remove(methodName);
+        }
+        return true;
+    }
+
+    public static synchronized boolean clearMethodUrl(String key) {
+        ConfigurableFeignClient client = getCheckedConfigurableFeignClient(key);
+        if (client.entity.methodUrls != null) {
+            client.entity.methodUrls.clear();
+        }
+        if (client.methodFeigns != null) {
+            client.methodFeigns.clear();
+        }
         return true;
     }
 

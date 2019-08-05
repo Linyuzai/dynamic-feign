@@ -45,7 +45,7 @@ public class DynamicFeignController {
      *
      * @param key        微服务名称@FeignClient中的值
      * @param methodName 方法名
-     * @param url     对应的feign地址u
+     * @param url        对应的feign地址u
      * @return 成功或异常
      */
     @PostMapping("/method-url/add")
@@ -53,6 +53,26 @@ public class DynamicFeignController {
                                   @RequestParam String url) {
         try {
             return DynamicFeignClientMapper.addMethodUrl(key, methodName, url);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return e;
+        }
+    }
+
+    @PostMapping("/method-url/remove")
+    public Object removeMethodOutUrl(@RequestParam String key, @RequestParam String methodName) {
+        try {
+            return DynamicFeignClientMapper.removeMethodUrl(key, methodName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return e;
+        }
+    }
+
+    @PostMapping("/method-url/clear")
+    public Object clearMethodOutUrl(@RequestParam String key) {
+        try {
+            return DynamicFeignClientMapper.clearMethodUrl(key);
         } catch (Exception e) {
             e.printStackTrace();
             return e;
