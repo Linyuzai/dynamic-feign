@@ -45,14 +45,14 @@ public class DynamicFeignController {
      *
      * @param key        微服务名称@FeignClient中的值
      * @param methodName 方法名
-     * @param outUrl     对应的feign地址
+     * @param url     对应的feign地址u
      * @return 成功或异常
      */
     @PostMapping("/method-url/add")
     public Object addMethodOutUrl(@RequestParam String key, @RequestParam String methodName,
-                                  @RequestParam String outUrl) {
+                                  @RequestParam String url) {
         try {
-            return DynamicFeignClientMapper.addMethodUrl(key, methodName, outUrl);
+            return DynamicFeignClientMapper.addMethodUrl(key, methodName, url);
         } catch (Exception e) {
             e.printStackTrace();
             return e;

@@ -114,29 +114,29 @@ public class DynamicFeignClientMapper {
      *
      * @param key        微服务名称
      * @param methodName 方法名称
-     * @param outUrl     url
+     * @param url        url
      * @return 是否成功
      */
-    public static synchronized boolean addMethodUrl(String key, String methodName, String outUrl) {
+    public static synchronized boolean addMethodUrl(String key, String methodName, String url) {
         if (key == null) {
             throw new RuntimeException("key is null");
         }
-        if (outUrl == null) {
+        if (url == null) {
             throw new RuntimeException("outUrl is null");
         }
         ConfigurableFeignClient client = feignClientMap.get(key);
         if (client == null) {
             throw new RuntimeException("key not found");
         }
-        Object out = client.newInstance(outUrl);
-        if (client.entity.methodOutUrls == null) {
-            client.entity.methodOutUrls = new ConcurrentHashMap<>();
+        Object out = client.newInstance(url);
+        if (client.entity.methodUrls == null) {
+            client.entity.methodUrls = new ConcurrentHashMap<>();
         }
-        client.entity.methodOutUrls.put(methodName, outUrl);
-        if (client.methodOuts == null) {
-            client.methodOuts = new ConcurrentHashMap<>();
+        client.entity.methodUrls.put(methodName, url);
+        if (client.methodFeigns == null) {
+            client.methodFeigns = new ConcurrentHashMap<>();
         }
-        client.methodOuts.put(methodName, out);
+        client.methodFeigns.put(methodName, out);
         return true;
     }
 
@@ -157,13 +157,13 @@ public class DynamicFeignClientMapper {
          */
         private String inUrl;
         /**
-         * 
+         *
          */
         private String outUrl;
         private boolean feignOut;
         private boolean feignMethod;
 
-        private Map<String, String> methodOutUrls = Collections.emptyMap();
+        private Map<String, String> methodUrls;
 
         public String getKey() {
             return key;
@@ -213,12 +213,12 @@ public class DynamicFeignClientMapper {
             this.feignMethod = feignMethod;
         }
 
-        public Map<String, String> getMethodOutUrls() {
-            return methodOutUrls;
+        public Map<String, String> getMethodUrls() {
+            return methodUrls;
         }
 
-        public void setMethodOutUrls(Map<String, String> methodOutUrls) {
-            this.methodOutUrls = methodOutUrls;
+        public void setMethodOutUrls(Map<String, String> methodUrls) {
+            this.methodUrls = methodUrls;
         }
     }
 
@@ -231,7 +231,7 @@ public class DynamicFeignClientMapper {
         private DynamicFeignClientFactoryBean factory;
         private Object in;
         private Object out;
-        private Map<String, Object> methodOuts = Collections.emptyMap();
+        private Map<String, Object> methodFeigns;
 
         private ConfigurableFeignClientEntity entity;
 
@@ -273,9 +273,9 @@ public class DynamicFeignClientMapper {
             if (entity.feignMethod) {
                 String key = method.getName();
                 if (entity.feignOut) {
-                    return methodOuts.getOrDefault(key, out);
+                    return methodFeigns == null ? out : methodFeigns.getOrDefault(key, out);
                 } else {
-                    return methodOuts.getOrDefault(key, in);
+                    return methodFeigns == null ? in : methodFeigns.getOrDefault(key, in);
                 }
             } else {
                 return entity.feignOut ? out : in;
@@ -338,12 +338,12 @@ public class DynamicFeignClientMapper {
             this.out = out;
         }
 
-        public Map<String, Object> getMethodOuts() {
-            return methodOuts;
+        public Map<String, Object> getMethodFeigns() {
+            return methodFeigns;
         }
 
-        public void setMethodOuts(Map<String, Object> methodOuts) {
-            this.methodOuts = methodOuts;
+        public void setMethodFeigns(Map<String, Object> methodFeigns) {
+            this.methodFeigns = methodFeigns;
         }
 
         public ConfigurableFeignClientEntity getEntity() {
