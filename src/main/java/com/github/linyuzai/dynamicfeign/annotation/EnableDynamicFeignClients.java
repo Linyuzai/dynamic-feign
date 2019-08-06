@@ -62,4 +62,8 @@ public @interface EnableDynamicFeignClients {
     Class<?>[] clients() default {};
 
     String outUrl() default "";
+
+    boolean feignOut() default false;
+
+    boolean feignMethod() default false;
 }

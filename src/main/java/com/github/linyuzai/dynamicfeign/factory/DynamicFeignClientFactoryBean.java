@@ -229,8 +229,8 @@ public class DynamicFeignClientFactoryBean<F> implements FactoryBean<F>, Initial
         DynamicFeignClientMapper.ConfigurableFeignClient feignClient =
                 new DynamicFeignClientMapper.ConfigurableFeignClient(context, builder, client, targeter, this);
 
-        feignClient.getEntity().setFeignOut(false);
-        feignClient.getEntity().setFeignMethod(false);
+        feignClient.getEntity().setFeignOut(DynamicFeignClientsRegistrar.isDefaultGlobalFeignOut());
+        feignClient.getEntity().setFeignMethod(DynamicFeignClientsRegistrar.isDefaultGlobalFeignMethod());
         feignClient.getEntity().setKey(this.name);
         feignClient.getEntity().setType(this.type);
         feignClient.getEntity().setInUrl("http://" + this.name);

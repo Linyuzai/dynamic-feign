@@ -41,6 +41,8 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
     // and RibbonClientsConfigurationRegistgrar
 
     private static String defaultGlobalOutUrl;
+    private static boolean defaultGlobalFeignOut;
+    private static boolean defaultGlobalFeignMethod;
 
     private ResourceLoader resourceLoader;
 
@@ -63,6 +65,14 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
 
     public static String getDefaultGlobalOutUrl() {
         return defaultGlobalOutUrl;
+    }
+
+    public static boolean isDefaultGlobalFeignOut() {
+        return defaultGlobalFeignOut;
+    }
+
+    public static boolean isDefaultGlobalFeignMethod() {
+        return defaultGlobalFeignMethod;
     }
 
     private void registerDefaultConfiguration(AnnotationMetadata metadata,
@@ -95,6 +105,8 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
         final Class<?>[] clients = attrs == null ? null
                 : (Class<?>[]) attrs.get("clients");
         defaultGlobalOutUrl = attrs == null ? null : (String) attrs.get("outUrl");
+        defaultGlobalFeignOut = attrs != null && (boolean) attrs.get("feignOut");
+        defaultGlobalFeignMethod = attrs != null && (boolean) attrs.get("feignMethod");
         if (clients == null || clients.length == 0) {
             scanner.addIncludeFilter(annotationTypeFilter);
             basePackages = getBasePackages(metadata);
