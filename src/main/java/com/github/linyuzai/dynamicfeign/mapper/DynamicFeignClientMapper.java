@@ -71,8 +71,10 @@ public class DynamicFeignClientMapper {
             if (client.entity.feignOut && client.entity.outUrl == null) {
                 throw new RuntimeException("outUrl is null when feignOut=true");
             }
+            client.entity.inUrl = getParsedUrl(client.entity.inUrl);
             client.in = client.newInstance(null);
             if (client.entity.outUrl != null) {
+                client.entity.outUrl = getParsedUrl(client.entity.outUrl);
                 client.out = client.newInstance(client.entity.outUrl);
             }
             feignClientMap.put(client.entity.key, client);
@@ -90,6 +92,7 @@ public class DynamicFeignClientMapper {
     public static synchronized boolean update(ConfigurableFeignClientEntity entity) {
         ConfigurableFeignClient client = getExistConfigurableFeignClient(entity.key);
         if (entity.outUrl != null) {
+            entity.outUrl = getParsedUrl(entity.outUrl);
             Object out = client.newInstance(entity.outUrl);
             client.entity.outUrl = entity.outUrl;
             client.out = out;
@@ -129,6 +132,7 @@ public class DynamicFeignClientMapper {
             throw new RuntimeException("method name is null");
         }
         ConfigurableFeignClient client = getExistConfigurableFeignClient(key);
+        url = getParsedUrl(url);
         Object out = client.newInstance(url);
         if (client.entity.methodUrls == null) {
             client.entity.methodUrls = new ConcurrentHashMap<>();
@@ -164,6 +168,20 @@ public class DynamicFeignClientMapper {
             client.methodFeigns.clear();
         }
         return true;
+    }
+
+    public static String getParsedUrl(String url) {
+        url = url.trim();
+        while (url.startsWith("/")) {
+            url = url.substring(1);
+        }
+        while (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        if (!url.startsWith("http")) {
+            url = "http://" + url;
+        }
+        return url;
     }
 
     /**
@@ -302,9 +320,6 @@ public class DynamicFeignClientMapper {
                 return targeter.target(factory, builder, context,
                         new Target.HardCodedTarget<>(entity.type, entity.key, entity.inUrl));
             } else {
-                if (!url.startsWith("http")) {
-                    url = "http://" + url;
-                }
                 if (url.equals(entity.inUrl)) {
                     return in;
                 }

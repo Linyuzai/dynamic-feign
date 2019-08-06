@@ -40,6 +40,8 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
     // patterned after Spring Integration IntegrationComponentScanRegistrar
     // and RibbonClientsConfigurationRegistgrar
 
+    private static String defaultGlobalOutUrl;
+
     private ResourceLoader resourceLoader;
 
     private Environment environment;
@@ -59,11 +61,14 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
         registerFeignClients(metadata, registry);
     }
 
+    public static String getDefaultGlobalOutUrl() {
+        return defaultGlobalOutUrl;
+    }
+
     private void registerDefaultConfiguration(AnnotationMetadata metadata,
                                               BeanDefinitionRegistry registry) {
         Map<String, Object> defaultAttrs = metadata
                 .getAnnotationAttributes(EnableDynamicFeignClients.class.getName(), true);
-
         if (defaultAttrs != null && defaultAttrs.containsKey("defaultConfiguration")) {
             String name;
             if (metadata.hasEnclosingClass()) {
@@ -89,6 +94,7 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
                 FeignClient.class);
         final Class<?>[] clients = attrs == null ? null
                 : (Class<?>[]) attrs.get("clients");
+        defaultGlobalOutUrl = attrs == null ? null : (String) attrs.get("outUrl");
         if (clients == null || clients.length == 0) {
             scanner.addIncludeFilter(annotationTypeFilter);
             basePackages = getBasePackages(metadata);

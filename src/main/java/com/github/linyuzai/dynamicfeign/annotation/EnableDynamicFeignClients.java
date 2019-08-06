@@ -60,4 +60,6 @@ public @interface EnableDynamicFeignClients {
      * @return list of FeignClient classes
      */
     Class<?>[] clients() default {};
+
+    String outUrl() default "";
 }

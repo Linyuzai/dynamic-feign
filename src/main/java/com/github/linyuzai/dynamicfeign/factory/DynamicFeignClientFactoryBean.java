@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
 import com.github.linyuzai.dynamicfeign.proxy.DynamicFeignProxy;
+import com.github.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
 import com.github.linyuzai.dynamicfeign.targeter.FakeTargeter;
 import com.github.linyuzai.dynamicfeign.targeter.Targeter;
 import org.springframework.beans.BeanUtils;
@@ -235,6 +236,10 @@ public class DynamicFeignClientFactoryBean<F> implements FactoryBean<F>, Initial
         feignClient.getEntity().setInUrl("http://" + this.name);
         if (StringUtils.hasText(this.url)) {
             feignClient.getEntity().setOutUrl(this.url);
+        } else {
+            if (StringUtils.hasText(DynamicFeignClientsRegistrar.getDefaultGlobalOutUrl())) {
+                feignClient.getEntity().setOutUrl(DynamicFeignClientsRegistrar.getDefaultGlobalOutUrl());
+            }
         }
         DynamicFeignClientMapper.add(feignClient);
         return new DynamicFeignProxy<>(type, feignClient).get();
