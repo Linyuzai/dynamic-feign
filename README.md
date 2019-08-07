@@ -7,6 +7,7 @@
 ### v0.2.0
 - 支持注解统一配置所有feign的out url，feign out，feign method
 - 复用相同url的feign
+- 如果url格式不标准则修改url，更方便复用
 
 ### v0.1.0
 - 提供@EnableDynamicFeignClients支持@FeignClient
