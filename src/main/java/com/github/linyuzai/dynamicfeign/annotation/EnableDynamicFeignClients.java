@@ -1,5 +1,6 @@
 package com.github.linyuzai.dynamicfeign.annotation;
 
+import com.github.linyuzai.dynamicfeign.concat.UrlConcat;
 import com.github.linyuzai.dynamicfeign.controller.DynamicFeignController;
 import com.github.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
@@ -62,6 +63,8 @@ public @interface EnableDynamicFeignClients {
     Class<?>[] clients() default {};
 
     String outUrl() default "";
+
+    UrlConcat urlConcat() default UrlConcat.SERVICE_LOWER_CASE;
 
     boolean feignOut() default false;
 

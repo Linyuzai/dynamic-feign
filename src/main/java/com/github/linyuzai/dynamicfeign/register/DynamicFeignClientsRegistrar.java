@@ -1,6 +1,7 @@
 package com.github.linyuzai.dynamicfeign.register;
 
 import com.github.linyuzai.dynamicfeign.annotation.EnableDynamicFeignClients;
+import com.github.linyuzai.dynamicfeign.concat.UrlConcat;
 import com.github.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -41,6 +42,7 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
     // and RibbonClientsConfigurationRegistgrar
 
     private static String defaultGlobalOutUrl;
+    private static UrlConcat defaultGlobalUrlConcat;
     private static boolean defaultGlobalFeignOut;
     private static boolean defaultGlobalFeignMethod;
 
@@ -65,6 +67,10 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
 
     public static String getDefaultGlobalOutUrl() {
         return defaultGlobalOutUrl;
+    }
+
+    public static UrlConcat getDefaultGlobalUrlConcat() {
+        return defaultGlobalUrlConcat;
     }
 
     public static boolean isDefaultGlobalFeignOut() {
@@ -105,6 +111,7 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
         final Class<?>[] clients = attrs == null ? null
                 : (Class<?>[]) attrs.get("clients");
         defaultGlobalOutUrl = attrs == null ? null : (String) attrs.get("outUrl");
+        defaultGlobalUrlConcat = attrs == null ? UrlConcat.SERVICE_LOWER_CASE : (UrlConcat) attrs.get("urlConcat");
         defaultGlobalFeignOut = attrs != null && (boolean) attrs.get("feignOut");
         defaultGlobalFeignMethod = attrs != null && (boolean) attrs.get("feignMethod");
         if (clients == null || clients.length == 0) {

@@ -237,8 +237,22 @@ public class DynamicFeignClientFactoryBean<F> implements FactoryBean<F>, Initial
         if (StringUtils.hasText(this.url)) {
             feignClient.getEntity().setOutUrl(this.url);
         } else {
-            if (StringUtils.hasText(DynamicFeignClientsRegistrar.getDefaultGlobalOutUrl())) {
-                feignClient.getEntity().setOutUrl(DynamicFeignClientsRegistrar.getDefaultGlobalOutUrl());
+            String defaultGlobalOutUrl = DynamicFeignClientsRegistrar.getDefaultGlobalOutUrl();
+            if (StringUtils.hasText(defaultGlobalOutUrl)) {
+                if (!defaultGlobalOutUrl.endsWith("/")) {
+                    defaultGlobalOutUrl += "/";
+                }
+                switch (DynamicFeignClientsRegistrar.getDefaultGlobalUrlConcat()) {
+                    case SERVICE_LOWER_CASE:
+                        defaultGlobalOutUrl += this.name.toLowerCase();
+                        break;
+                    case SERVICE_UPPER_CASE:
+                        defaultGlobalOutUrl += this.name.toUpperCase();
+                        break;
+                    case NONE:
+                        break;
+                }
+                feignClient.getEntity().setOutUrl(defaultGlobalOutUrl);
             }
         }
         DynamicFeignClientMapper.add(feignClient);
