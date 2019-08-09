@@ -41,12 +41,25 @@ public static class ConfigurableFeignClientEntity {
 ```
 ### 动态配置接口
 |功能|方式|代码|必传字段|其他|
-|-|-|-|-|-|
+|---|---|---|---|---|
 |查询配置|代码|`DynamicFeignClientMapper.getFeignClientEntities();`|||
 |更新配置|代码|`DynamicFeignClientMapper.update(ConfigurableFeignClientEntity);`|`key`|只能修改`outUrl`，`feignOut`，`feignMethod`|
+|添加方法对应的url|代码|`DynamicFeignClientMapper.addMethodUrl(key, methodName, url);`|`key`，`methodName`，`url`|相同的`methodName`会覆盖|
+|移除方法对应的url|代码|`DynamicFeignClientMapper.removeMethodUrl(key, methodName);`|`key`，`methodName`||
+|清空方法对应的url|代码|`DynamicFeignClientMapper.clearMethodUrl(key);`|`key`||
+|查询配置|接口|`/dynamic-feign/config[GET]`|||
+|更新配置|接口|`/dynamic-feign/config[POST]`|`key`|只能修改`outUrl`，`feignOut`，`feignMethod`|
+|添加方法对应的url|接口|`/dynamic-feign/method-url/add[POST]`|`key`，`methodName`，`url`|相同的`methodName`会覆盖|
+|移除方法对应的url|接口|`/dynamic-feign/method-url/remove[POST]`|`key`，`methodName`||
+|清空方法对应的url|接口|`/dynamic-feign/method-url/clear[POST]`|`key`||
 
 ### `@EnableDynamicFeignClients`的额外属性
-- `@EnableDynamicFeignClients(outUrl="")`用于统一配置
+- `@EnableDynamicFeignClients(outUrl = "http/https://ip:port/prefix")`用于统一配置`outUrl`
+- `@EnableDynamicFeignClients(feignOut = true)`用于统一配置`feignOut`，为true时需要同时配置`outUrl`，默认为false
+- `@EnableDynamicFeignClients(feignMethod = true)`用于统一配置`feignMethod`，默认为false
+- `@EnableDynamicFeignClients(urlConcat = UrlConcat)`用于配置`outUrl`的拼接规则，`NONE`不拼接，`SERVICE_LOWER_CASE`拼接小写服务名，`SERVICE_UPPER_CASE`拼接大写服务名，默认`SERVICE_LOWER_CASE`
+
+## Version logs
 
 ### v0.2.1
 - 新增UrlConcat指定统一out url的拼接方式
