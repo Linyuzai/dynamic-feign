@@ -1,5 +1,10 @@
 # dynamic-feign
 
+```
+implementation 'com.github.linyuzai:dynamic-feign:0.2.1'
+```
+## 将@EnableFeignClients替换成@EnableDynamicFeignClients来支持动态配置
+
 ### v0.2.1
 - 新增UrlConcat指定统一out url的拼接方式
 - 修复统一out url未拼接服务名的bug
