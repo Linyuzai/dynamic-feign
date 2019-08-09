@@ -49,7 +49,7 @@ public class DynamicFeignController {
      * @return 成功或异常
      */
     @PostMapping("/method-url/add")
-    public Object addMethodOutUrl(@RequestParam String key, @RequestParam String methodName,
+    public Object addMethodUrl(@RequestParam String key, @RequestParam String methodName,
                                   @RequestParam String url) {
         try {
             return DynamicFeignClientMapper.addMethodUrl(key, methodName, url);
@@ -60,7 +60,7 @@ public class DynamicFeignController {
     }
 
     @PostMapping("/method-url/remove")
-    public Object removeMethodOutUrl(@RequestParam String key, @RequestParam String methodName) {
+    public Object removeMethodUrl(@RequestParam String key, @RequestParam String methodName) {
         try {
             return DynamicFeignClientMapper.removeMethodUrl(key, methodName);
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class DynamicFeignController {
     }
 
     @PostMapping("/method-url/clear")
-    public Object clearMethodOutUrl(@RequestParam String key) {
+    public Object clearMethodUrl(@RequestParam String key) {
         try {
             return DynamicFeignClientMapper.clearMethodUrl(key);
         } catch (Exception e) {
