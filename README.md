@@ -3,7 +3,49 @@
 ```
 implementation 'com.github.linyuzai:dynamic-feign:0.2.1'
 ```
-## 将@EnableFeignClients替换成@EnableDynamicFeignClients来支持动态配置
+## 将`@EnableFeignClients`替换成`@EnableDynamicFeignClients`来支持动态配置
+
+### 动态配置类
+```
+public static class ConfigurableFeignClientEntity {
+        /**
+         * 微服务名称
+         */
+        private String key;
+        /*
+         * 格式为http://key，相当于feign的默认实现，支持负载均衡
+         */
+        private String inUrl;
+        /**
+         * 指定的url
+         */
+        private String outUrl;
+        /**
+         * 是否使用指定outUrl
+         */
+        private boolean feignOut;
+        /**
+         * 是否映射方法指定url
+         */
+        private boolean feignMethod;
+        /**
+         * 方法与url的映射关系
+         */
+        private Map<String, String> methodUrls;
+        
+        /*
+         * get set
+         * ......
+         */
+}
+```
+### 动态配置接口
+|1|方式|代码|必传字段|其他|
+|-|-|-|-|-|
+|更新配置|代码|`DynamicFeignClientMapper.update(ConfigurableFeignClientEntity);`|`key`|只能修改`outUrl`，`feignOut`，`feignMethod`|
+
+### `@EnableDynamicFeignClients`的额外属性
+- `@EnableDynamicFeignClients(outUrl="")`用于统一配置
 
 ### v0.2.1
 - 新增UrlConcat指定统一out url的拼接方式
