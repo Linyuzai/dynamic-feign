@@ -40,8 +40,9 @@ public static class ConfigurableFeignClientEntity {
 }
 ```
 ### 动态配置接口
-|1|方式|代码|必传字段|其他|
+|功能|方式|代码|必传字段|其他|
 |-|-|-|-|-|
+|查询配置|代码|`DynamicFeignClientMapper.getFeignClientEntities();`|||
 |更新配置|代码|`DynamicFeignClientMapper.update(ConfigurableFeignClientEntity);`|`key`|只能修改`outUrl`，`feignOut`，`feignMethod`|
 
 ### `@EnableDynamicFeignClients`的额外属性
