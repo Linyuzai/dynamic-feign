@@ -62,11 +62,14 @@ public @interface EnableDynamicFeignClients {
      */
     Class<?>[] clients() default {};
 
+    @ProfilePrimary
     String outUrl() default "";
 
     UrlConcat urlConcat() default UrlConcat.SERVICE_LOWER_CASE;
 
+    @ProfilePrimary
     boolean feignOut() default false;
 
+    @ProfilePrimary
     boolean feignMethod() default false;
 }

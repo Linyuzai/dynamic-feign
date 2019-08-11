@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.github.linyuzai'
-version = '0.2.0'
+version = '0.2.1'
 sourceCompatibility = '1.8'
 
 repositories {
@@ -60,6 +60,7 @@ publishing {
             // version = project.version
             // groupId,artifactId,version，如果不定义，则会按照以上默认值执行
             from components.java
+            //artifact makeJar
             artifact sourcesJar
             artifact javadocJar
             pom {

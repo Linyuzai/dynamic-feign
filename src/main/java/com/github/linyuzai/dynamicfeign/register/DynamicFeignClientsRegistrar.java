@@ -111,9 +111,27 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
         final Class<?>[] clients = attrs == null ? null
                 : (Class<?>[]) attrs.get("clients");
         defaultGlobalOutUrl = attrs == null ? null : (String) attrs.get("outUrl");
+        String outUrlProperty = environment.getProperty("dynamic-feign.out-url");
+        if (outUrlProperty != null) {
+            defaultGlobalOutUrl = outUrlProperty;
+        }
         defaultGlobalUrlConcat = attrs == null ? UrlConcat.SERVICE_LOWER_CASE : (UrlConcat) attrs.get("urlConcat");
         defaultGlobalFeignOut = attrs != null && (boolean) attrs.get("feignOut");
+        String feignOutProperty = environment.getProperty("dynamic-feign.feign-out");
+        if (feignOutProperty != null) {
+            try {
+                defaultGlobalFeignOut = Boolean.valueOf(feignOutProperty);
+            } catch (Exception ignore) {
+            }
+        }
         defaultGlobalFeignMethod = attrs != null && (boolean) attrs.get("feignMethod");
+        String feignMethodProperty = environment.getProperty("dynamic-feign.feign-method");
+        if (feignMethodProperty != null) {
+            try {
+                defaultGlobalFeignMethod = Boolean.valueOf(feignMethodProperty);
+            } catch (Exception ignore) {
+            }
+        }
         if (clients == null || clients.length == 0) {
             scanner.addIncludeFilter(annotationTypeFilter);
             basePackages = getBasePackages(metadata);
