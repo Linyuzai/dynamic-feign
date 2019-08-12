@@ -61,17 +61,22 @@ public static class ConfigurableFeignClientEntity {
 
 ## Version logs
 
+### v0.3.0
+- 新增配置文件代替`@EnableDynamicFeignClients`统一配置`outUrl`，`feignOut`，`feignMethod`
+- 新增根据class获得feign和更新feign
+- 获得feign由通过实例方法改为通过静态方法
+
 ### v0.2.1
-- 新增UrlConcat指定统一out url的拼接方式
-- 修复统一out url未拼接服务名的bug
+- 新增`UrlConcat`指定统一`outUrl`的拼接方式
+- 修复统一`outUrl`未拼接服务名的bug
 
 ### v0.2.0
-- 支持注解统一配置所有feign的out url，feign out，feign method
+- 支持注解统一配置所有feign的`outUrl`，`feignOut`，`feignMethod`
 - 复用相同url的feign
 - 如果url格式不标准则修改url，更方便复用
 
 ### v0.1.0
-- 提供@EnableDynamicFeignClients支持@FeignClient
-- 默认注入服务间负载均衡的feign(in url)
-- 支持动态配置feign的额外url(out url)
-- 支持方法级别的配置，可通过(methodName,url)来指定每个feign对应方法调用的url
+- 提供`@EnableDynamicFeignClients`支持`@FeignClient`
+- 默认注入服务间负载均衡的feign(`inUrl`)
+- 支持动态配置feign的额外url(`outUrl`)
+- 支持方法级别的配置，可通过`(methodName,url)`来指定每个feign对应方法调用的url

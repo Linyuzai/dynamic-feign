@@ -39,7 +39,7 @@ public class DynamicFeignClientMapper {
      * @param key 微服务名称
      * @return 某个微服务的feign配置
      */
-    public ConfigurableFeignClientEntity getConfigurableFeignClientEntity(String key) {
+    public static ConfigurableFeignClientEntity getConfigurableFeignClientEntity(String key) {
         ConfigurableFeignClient client = feignClientMap.get(key);
         return client == null ? null : client.entity;
     }
@@ -50,8 +50,17 @@ public class DynamicFeignClientMapper {
      * @param key 微服务名称
      * @return 某个微服务的feign client
      */
-    public ConfigurableFeignClient getConfigurableFeignClient(String key) {
+    public static ConfigurableFeignClient getConfigurableFeignClient(String key) {
         return feignClientMap.get(key);
+    }
+
+    public static ConfigurableFeignClient getConfigurableFeignClient(Class<?> cls) {
+        for (ConfigurableFeignClient client : feignClientMap.values()) {
+            if (client.entity.type == cls) {
+                return client;
+            }
+        }
+        return null;
     }
 
     /**
@@ -103,6 +112,22 @@ public class DynamicFeignClientMapper {
         client.entity.feignOut = entity.feignOut;
         client.entity.feignMethod = entity.feignMethod;
         return true;
+    }
+
+    /**
+     * 更新某个feign配置
+     *
+     * @param cls    需要更新的feign类
+     * @param entity 需要更新的feign配置
+     * @return 是否成功
+     */
+    public static boolean update(Class<?> cls, ConfigurableFeignClientEntity entity) {
+        ConfigurableFeignClient client = getConfigurableFeignClient(cls);
+        if (client == null) {
+            throw new RuntimeException("Class for feign not found");
+        }
+        entity.key = client.entity.key;
+        return update(entity);
     }
 
     private static ConfigurableFeignClient getExistConfigurableFeignClient(String key) {
