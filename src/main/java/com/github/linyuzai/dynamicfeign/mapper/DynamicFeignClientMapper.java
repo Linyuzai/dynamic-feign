@@ -366,9 +366,10 @@ public class DynamicFeignClientMapper {
                         new Target.HardCodedTarget<>(entity.type, entity.key, entity.inUrl));
             } else {
                 if (url.equals(entity.inUrl)) {
+                    //cant be null
                     return in;
                 }
-                if (url.equals(entity.outUrl)) {
+                if (url.equals(entity.outUrl) && out != null) {
                     return out;
                 }
                 if (entity.methodUrls != null) {

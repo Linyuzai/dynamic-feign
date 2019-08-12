@@ -71,6 +71,7 @@ public static class ConfigurableFeignClientEntity {
 - 新增配置文件代替`@EnableDynamicFeignClients`统一配置`outUrl`，`feignOut`，`feignMethod`
 - 新增根据class获得feign和更新feign
 - 获得feign由通过实例方法改为通过静态方法
+- 修复out复用一直为null的bug
 
 ### v0.2.1
 - 新增`UrlConcat`指定统一`outUrl`的拼接方式
