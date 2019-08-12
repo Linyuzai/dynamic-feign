@@ -122,10 +122,7 @@ public class DynamicFeignClientMapper {
      * @return 是否成功
      */
     public static boolean update(Class<?> cls, ConfigurableFeignClientEntity entity) {
-        ConfigurableFeignClient client = getConfigurableFeignClient(cls);
-        if (client == null) {
-            throw new RuntimeException("Class for feign not found");
-        }
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(cls);
         entity.key = client.entity.key;
         return update(entity);
     }
@@ -137,6 +134,14 @@ public class DynamicFeignClientMapper {
         ConfigurableFeignClient client = feignClientMap.get(key);
         if (client == null) {
             throw new RuntimeException("key not found");
+        }
+        return client;
+    }
+
+    private static ConfigurableFeignClient getExistConfigurableFeignClient(Class<?> cls) {
+        ConfigurableFeignClient client = getConfigurableFeignClient(cls);
+        if (client == null) {
+            throw new RuntimeException("Class for feign not found");
         }
         return client;
     }
@@ -170,6 +175,11 @@ public class DynamicFeignClientMapper {
         return true;
     }
 
+    public static boolean addMethodUrl(Class<?> cls, String methodName, String url) {
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(cls);
+        return addMethodUrl(client.entity.key, methodName, url);
+    }
+
     public static synchronized boolean removeMethodUrl(String key, String methodName) {
         if (methodName == null) {
             throw new RuntimeException("method name is null");
@@ -184,6 +194,11 @@ public class DynamicFeignClientMapper {
         return true;
     }
 
+    public static boolean removeMethodUrl(Class<?> cls, String methodName) {
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(cls);
+        return removeMethodUrl(client.entity.key, methodName);
+    }
+
     public static synchronized boolean clearMethodUrl(String key) {
         ConfigurableFeignClient client = getExistConfigurableFeignClient(key);
         if (client.entity.methodUrls != null) {
@@ -193,6 +208,11 @@ public class DynamicFeignClientMapper {
             client.methodFeigns.clear();
         }
         return true;
+    }
+
+    public static boolean clearMethodUrl(Class<?> cls) {
+        ConfigurableFeignClient client = getExistConfigurableFeignClient(cls);
+        return clearMethodUrl(client.entity.key);
     }
 
     public static String getParsedUrl(String url) {
