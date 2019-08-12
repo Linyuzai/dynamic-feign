@@ -59,6 +59,12 @@ public static class ConfigurableFeignClientEntity {
 - `@EnableDynamicFeignClients(feignMethod = true)`用于统一配置`feignMethod`，默认为false
 - `@EnableDynamicFeignClients(urlConcat = UrlConcat)`用于配置`outUrl`的拼接规则，`NONE`不拼接，`SERVICE_LOWER_CASE`拼接小写服务名，`SERVICE_UPPER_CASE`拼接大写服务名，默认`SERVICE_LOWER_CASE`
 
+### 配置文件属性
+- 优先级大于`@EnableDynamicFeignClients`
+- `dynamic-feign.out-url`可代替`@EnableDynamicFeignClients(outUrl = "http/https://ip:port/prefix")`
+- `dynamic-feign.feign-out`可代替`@EnableDynamicFeignClients(feignOut = true)`
+- `dynamic-feign.feign-method`可代替`@EnableDynamicFeignClients(feignMethod = true)`
+
 ## Version logs
 
 ### v0.3.0
