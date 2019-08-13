@@ -73,8 +73,8 @@ public class DynamicFeignClientFactoryBean<F> implements FactoryBean<F>, Initial
         Feign.Builder builder = get(context, Feign.Builder.class)
                 // required values
                 .logger(logger)
-                .encoder(get(context, Encoder.class))
-                .decoder(get(context, Decoder.class))
+                .encoder(DynamicFeignClientsRegistrar.getEncoderWrapper().wrapper(get(context, Encoder.class)))
+                .decoder(DynamicFeignClientsRegistrar.getDecoderWrapper().wrapper(get(context, Decoder.class)))
                 .contract(get(context, Contract.class));
         // @formatter:on
 

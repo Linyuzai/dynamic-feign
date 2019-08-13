@@ -3,6 +3,10 @@ package com.github.linyuzai.dynamicfeign.register;
 import com.github.linyuzai.dynamicfeign.annotation.EnableDynamicFeignClients;
 import com.github.linyuzai.dynamicfeign.concat.UrlConcat;
 import com.github.linyuzai.dynamicfeign.factory.DynamicFeignClientFactoryBean;
+import com.github.linyuzai.dynamicfeign.wrapper.DecoderWrapper;
+import com.github.linyuzai.dynamicfeign.wrapper.EncoderWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -38,6 +42,7 @@ import java.util.*;
 public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
         ResourceLoaderAware, EnvironmentAware {
 
+    private static final Logger logger = LoggerFactory.getLogger(DynamicFeignClientsRegistrar.class);
     // patterned after Spring Integration IntegrationComponentScanRegistrar
     // and RibbonClientsConfigurationRegistgrar
 
@@ -45,6 +50,8 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
     private static UrlConcat defaultGlobalUrlConcat;
     private static boolean defaultGlobalFeignOut;
     private static boolean defaultGlobalFeignMethod;
+    private static DecoderWrapper decoderWrapper;
+    private static EncoderWrapper encoderWrapper;
 
     private ResourceLoader resourceLoader;
 
@@ -81,6 +88,14 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
         return defaultGlobalFeignMethod;
     }
 
+    public static DecoderWrapper getDecoderWrapper() {
+        return decoderWrapper;
+    }
+
+    public static EncoderWrapper getEncoderWrapper() {
+        return encoderWrapper;
+    }
+
     private void registerDefaultConfiguration(AnnotationMetadata metadata,
                                               BeanDefinitionRegistry registry) {
         Map<String, Object> defaultAttrs = metadata
@@ -97,6 +112,82 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
         }
     }
 
+    private void configurationOutUrl(Map<String, Object> attrs) {
+        defaultGlobalOutUrl = attrs == null ? null : (String) attrs.get("outUrl");
+        String outUrlProperty = environment.getProperty("dynamic-feign.out-url");
+        if (outUrlProperty != null) {
+            defaultGlobalOutUrl = outUrlProperty;
+        }
+    }
+
+    private void configurationUrlConcat(Map<String, Object> attrs) {
+        defaultGlobalUrlConcat = attrs == null ? UrlConcat.SERVICE_LOWER_CASE : (UrlConcat) attrs.get("urlConcat");
+    }
+
+    private void configurationFeignOut(Map<String, Object> attrs) {
+        defaultGlobalFeignOut = attrs != null && (boolean) attrs.get("feignOut");
+        String feignOutProperty = environment.getProperty("dynamic-feign.feign-out");
+        if (feignOutProperty != null) {
+            try {
+                defaultGlobalFeignOut = Boolean.valueOf(feignOutProperty);
+            } catch (Exception ignore) {
+                logger.error("dynamic-feign.feign-out only accept true or false");
+            }
+        }
+    }
+
+    private void configurationFeignMethod(Map<String, Object> attrs) {
+        defaultGlobalFeignMethod = attrs != null && (boolean) attrs.get("feignMethod");
+        String feignMethodProperty = environment.getProperty("dynamic-feign.feign-method");
+        if (feignMethodProperty != null) {
+            try {
+                defaultGlobalFeignMethod = Boolean.valueOf(feignMethodProperty);
+            } catch (Exception ignore) {
+                logger.error("dynamic-feign.feign-method only accept true or false");
+            }
+        }
+    }
+
+    private void configurationEncoderWrapper(Map<String, Object> attrs) {
+        @SuppressWarnings("unchecked")
+        Class<? extends EncoderWrapper> encoderWrapper = attrs == null ? EncoderWrapper.Default.class :
+                (Class<? extends EncoderWrapper>) attrs.get("encoderWrapper");
+        try {
+            DynamicFeignClientsRegistrar.encoderWrapper = encoderWrapper.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            logger.error(encoderWrapper.getName() + " newInstance failure with " + e.getMessage());
+            DynamicFeignClientsRegistrar.encoderWrapper = new EncoderWrapper.Default();
+        }
+        String encoderWrapperProperty = environment.getProperty("dynamic-feign.encoder-wrapper");
+        if (encoderWrapperProperty != null) {
+            try {
+                DynamicFeignClientsRegistrar.encoderWrapper = (EncoderWrapper) Class.forName(encoderWrapperProperty).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                logger.error(encoderWrapperProperty + " newInstance failure with " + e.getMessage());
+            }
+        }
+    }
+
+    private void configurationDecoderWrapper(Map<String, Object> attrs) {
+        @SuppressWarnings("unchecked")
+        Class<? extends DecoderWrapper> decoderWrapper = attrs == null ? DecoderWrapper.Default.class :
+                (Class<? extends DecoderWrapper>) attrs.get("decoderWrapper");
+        try {
+            DynamicFeignClientsRegistrar.decoderWrapper = decoderWrapper.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            logger.error(decoderWrapper.getName() + " newInstance failure with " + e.getMessage());
+            DynamicFeignClientsRegistrar.decoderWrapper = new DecoderWrapper.Default();
+        }
+        String decoderWrapperProperty = environment.getProperty("dynamic-feign.decoder-wrapper");
+        if (decoderWrapperProperty != null) {
+            try {
+                DynamicFeignClientsRegistrar.decoderWrapper = (DecoderWrapper) Class.forName(decoderWrapperProperty).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                logger.error(decoderWrapperProperty + " newInstance failure with " + e.getMessage());
+            }
+        }
+    }
+
     public void registerFeignClients(AnnotationMetadata metadata,
                                      BeanDefinitionRegistry registry) {
         ClassPathScanningCandidateComponentProvider scanner = getScanner();
@@ -110,28 +201,14 @@ public class DynamicFeignClientsRegistrar implements ImportBeanDefinitionRegistr
                 FeignClient.class);
         final Class<?>[] clients = attrs == null ? null
                 : (Class<?>[]) attrs.get("clients");
-        defaultGlobalOutUrl = attrs == null ? null : (String) attrs.get("outUrl");
-        String outUrlProperty = environment.getProperty("dynamic-feign.out-url");
-        if (outUrlProperty != null) {
-            defaultGlobalOutUrl = outUrlProperty;
-        }
-        defaultGlobalUrlConcat = attrs == null ? UrlConcat.SERVICE_LOWER_CASE : (UrlConcat) attrs.get("urlConcat");
-        defaultGlobalFeignOut = attrs != null && (boolean) attrs.get("feignOut");
-        String feignOutProperty = environment.getProperty("dynamic-feign.feign-out");
-        if (feignOutProperty != null) {
-            try {
-                defaultGlobalFeignOut = Boolean.valueOf(feignOutProperty);
-            } catch (Exception ignore) {
-            }
-        }
-        defaultGlobalFeignMethod = attrs != null && (boolean) attrs.get("feignMethod");
-        String feignMethodProperty = environment.getProperty("dynamic-feign.feign-method");
-        if (feignMethodProperty != null) {
-            try {
-                defaultGlobalFeignMethod = Boolean.valueOf(feignMethodProperty);
-            } catch (Exception ignore) {
-            }
-        }
+
+        configurationOutUrl(attrs);
+        configurationUrlConcat(attrs);
+        configurationFeignOut(attrs);
+        configurationFeignMethod(attrs);
+        configurationEncoderWrapper(attrs);
+        configurationDecoderWrapper(attrs);
+
         if (clients == null || clients.length == 0) {
             scanner.addIncludeFilter(annotationTypeFilter);
             basePackages = getBasePackages(metadata);

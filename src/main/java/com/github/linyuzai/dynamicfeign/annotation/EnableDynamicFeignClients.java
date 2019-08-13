@@ -3,6 +3,8 @@ package com.github.linyuzai.dynamicfeign.annotation;
 import com.github.linyuzai.dynamicfeign.concat.UrlConcat;
 import com.github.linyuzai.dynamicfeign.controller.DynamicFeignController;
 import com.github.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
+import com.github.linyuzai.dynamicfeign.wrapper.DecoderWrapper;
+import com.github.linyuzai.dynamicfeign.wrapper.EncoderWrapper;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 
@@ -72,4 +74,10 @@ public @interface EnableDynamicFeignClients {
 
     @ProfilePrimary
     boolean feignMethod() default false;
+
+    @ProfilePrimary
+    Class<? extends DecoderWrapper> decoderWrapper() default DecoderWrapper.Default.class;
+
+    @ProfilePrimary
+    Class<? extends EncoderWrapper> encoderWrapper() default EncoderWrapper.Default.class;
 }
