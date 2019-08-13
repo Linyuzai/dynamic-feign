@@ -74,6 +74,7 @@ public static class ConfigurableFeignClientEntity {
 ### v0.3.1
 - 修复0.3.0版本的jar包问题
 - 添加`EncoderWrapper`和`DecoderWrapper`
+- 支持lambda配置methodUrl
 
 ### v0.3.0
 - 新增配置文件代替`@EnableDynamicFeignClients`统一配置`outUrl`，`feignOut`，`feignMethod`
