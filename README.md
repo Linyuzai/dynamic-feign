@@ -71,6 +71,9 @@ public static class ConfigurableFeignClientEntity {
 
 ## Version logs
 
+### v0.3.2
+- 将lambda模块移出至单独的项目
+
 ### v0.3.1
 - 修复0.3.0版本的jar包问题
 - 添加`EncoderWrapper`和`DecoderWrapper`
