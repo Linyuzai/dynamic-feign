@@ -66,8 +66,8 @@ public static class ConfigurableFeignClientEntity {
 - `dynamic-feign.out-url`可代替`@EnableDynamicFeignClients(outUrl = "http/https://ip:port/prefix")`
 - `dynamic-feign.feign-out`可代替`@EnableDynamicFeignClients(feignOut = true)`
 - `dynamic-feign.feign-method`可代替`@EnableDynamicFeignClients(feignMethod = true)`
-- `dynamic-feign.encoder-wrapper`可代替`@EnableDynamicFeignClients(encoderWrapper = EncoderWrapper)`
-- `dynamic-feign.decoder-wrapper`可代替`@EnableDynamicFeignClients(decoderWrapper = DecoderWrapper)`
+- `dynamic-feign.encoder-wrapper="com.github.linyuzai.dynamicfeign.wrapper.EncoderWrapper"`可代替`@EnableDynamicFeignClients(encoderWrapper = EncoderWrapper)`
+- `dynamic-feign.decoder-wrapper="com.github.linyuzai.dynamicfeign.wrapper.DecoderWrapper"`可代替`@EnableDynamicFeignClients(decoderWrapper = DecoderWrapper)`
 
 ## Version logs
 
