@@ -71,7 +71,7 @@ public static class ConfigurableFeignClientEntity {
 
 ## Version logs
 
-### v0.3.2
+### v0.3.2(unpublished)
 - 将lambda模块移出至单独的项目
 
 ### v0.3.1
