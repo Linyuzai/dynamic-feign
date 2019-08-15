@@ -100,3 +100,4 @@ public static class ConfigurableFeignClientEntity {
 - 默认注入服务间负载均衡的feign(`inUrl`)
 - 支持动态配置feign的额外url(`outUrl`)
 - 支持方法级别的配置，可通过`(methodName,url)`来指定每个feign对应方法调用的url
+
