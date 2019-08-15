@@ -1,7 +1,7 @@
 # dynamic-feign
 
 ```
-implementation 'com.github.linyuzai:dynamic-feign:0.2.1'
+implementation 'com.github.linyuzai:dynamic-feign:0.3.1'
 ```
 ## 将`@EnableFeignClients`替换成`@EnableDynamicFeignClients`来支持动态配置
 
