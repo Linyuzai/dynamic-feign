@@ -24,6 +24,10 @@ public class DynamicFeignClientMapper {
      */
     private static Map<String, ConfigurableFeignClient> feignClientMap = new ConcurrentHashMap<>();
 
+    public static Map<String, ConfigurableFeignClient> getFeignClientMap() {
+        return feignClientMap;
+    }
+
     /**
      * 获得所有的feign client
      *
@@ -87,6 +91,11 @@ public class DynamicFeignClientMapper {
                 client.out = client.newInstance(client.entity.outUrl);
             }
             feignClientMap.put(client.entity.key, client);
+            if (client.entity.methodUrls != null) {
+                for (Map.Entry<String, String> entry : client.entity.methodUrls.entrySet()) {
+                    addMethodUrl(client.entity.key, entry.getKey(), entry.getValue());
+                }
+            }
         } else {
             throw new RuntimeException("key exists");
         }
@@ -372,7 +381,7 @@ public class DynamicFeignClientMapper {
                 if (url.equals(entity.outUrl) && out != null) {
                     return out;
                 }
-                if (entity.methodUrls != null) {
+                if (entity.methodUrls != null && methodFeigns != null) {
                     for (Map.Entry<String, String> entry : entity.methodUrls.entrySet()) {
                         if (url.equals(entry.getValue())) {
                             Object feign = methodFeigns.get(entry.getKey());

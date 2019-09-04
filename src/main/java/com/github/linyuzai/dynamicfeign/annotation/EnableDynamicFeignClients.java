@@ -2,6 +2,8 @@ package com.github.linyuzai.dynamicfeign.annotation;
 
 import com.github.linyuzai.dynamicfeign.concat.UrlConcat;
 import com.github.linyuzai.dynamicfeign.controller.DynamicFeignController;
+import com.github.linyuzai.dynamicfeign.initializer.AnnotationDynamicFeignInitializer;
+import com.github.linyuzai.dynamicfeign.initializer.DynamicFeignInitializer;
 import com.github.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
 import com.github.linyuzai.dynamicfeign.wrapper.DecoderWrapper;
 import com.github.linyuzai.dynamicfeign.wrapper.EncoderWrapper;
@@ -67,6 +69,7 @@ public @interface EnableDynamicFeignClients {
     @ProfilePrimary
     String outUrl() default "";
 
+    @ProfilePrimary
     UrlConcat urlConcat() default UrlConcat.SERVICE_LOWER_CASE;
 
     @ProfilePrimary
@@ -80,4 +83,9 @@ public @interface EnableDynamicFeignClients {
 
     @ProfilePrimary
     Class<? extends EncoderWrapper> encoderWrapper() default EncoderWrapper.Default.class;
+
+    @ProfilePrimary
+    Class<? extends DynamicFeignInitializer> initializer() default AnnotationDynamicFeignInitializer.class;
+
+    DynamicFeignInitialization[] annotationInitializer() default {};
 }

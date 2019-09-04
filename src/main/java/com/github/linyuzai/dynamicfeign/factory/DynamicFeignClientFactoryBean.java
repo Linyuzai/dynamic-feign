@@ -3,6 +3,7 @@ package com.github.linyuzai.dynamicfeign.factory;
 import java.util.Map;
 import java.util.Objects;
 
+import com.github.linyuzai.dynamicfeign.initializer.InitializationConfiguration;
 import com.github.linyuzai.dynamicfeign.mapper.DynamicFeignClientMapper;
 import com.github.linyuzai.dynamicfeign.proxy.DynamicFeignProxy;
 import com.github.linyuzai.dynamicfeign.register.DynamicFeignClientsRegistrar;
@@ -73,8 +74,8 @@ public class DynamicFeignClientFactoryBean<F> implements FactoryBean<F>, Initial
         Feign.Builder builder = get(context, Feign.Builder.class)
                 // required values
                 .logger(logger)
-                .encoder(DynamicFeignClientsRegistrar.getEncoderWrapper().wrapper(get(context, Encoder.class)))
-                .decoder(DynamicFeignClientsRegistrar.getDecoderWrapper().wrapper(get(context, Decoder.class)))
+                .encoder(InitializationConfiguration.global().getEncoderWrapper().wrapper(name, type, get(context, Encoder.class)))
+                .decoder(InitializationConfiguration.global().getDecoderWrapper().wrapper(name, type, get(context, Decoder.class)))
                 .contract(get(context, Contract.class));
         // @formatter:on
 
@@ -229,32 +230,11 @@ public class DynamicFeignClientFactoryBean<F> implements FactoryBean<F>, Initial
         DynamicFeignClientMapper.ConfigurableFeignClient feignClient =
                 new DynamicFeignClientMapper.ConfigurableFeignClient(context, builder, client, targeter, this);
 
-        feignClient.getEntity().setFeignOut(DynamicFeignClientsRegistrar.isDefaultGlobalFeignOut());
-        feignClient.getEntity().setFeignMethod(DynamicFeignClientsRegistrar.isDefaultGlobalFeignMethod());
         feignClient.getEntity().setKey(this.name);
         feignClient.getEntity().setType(this.type);
         feignClient.getEntity().setInUrl("http://" + this.name);
-        if (StringUtils.hasText(this.url)) {
-            feignClient.getEntity().setOutUrl(this.url);
-        } else {
-            String defaultGlobalOutUrl = DynamicFeignClientsRegistrar.getDefaultGlobalOutUrl();
-            if (StringUtils.hasText(defaultGlobalOutUrl)) {
-                if (!defaultGlobalOutUrl.endsWith("/")) {
-                    defaultGlobalOutUrl += "/";
-                }
-                switch (DynamicFeignClientsRegistrar.getDefaultGlobalUrlConcat()) {
-                    case SERVICE_LOWER_CASE:
-                        defaultGlobalOutUrl += this.name.toLowerCase();
-                        break;
-                    case SERVICE_UPPER_CASE:
-                        defaultGlobalOutUrl += this.name.toUpperCase();
-                        break;
-                    case NONE:
-                        break;
-                }
-                feignClient.getEntity().setOutUrl(defaultGlobalOutUrl);
-            }
-        }
+
+        DynamicFeignClientsRegistrar.getDynamicFeignInitializer().initialize(feignClient.getEntity());
         DynamicFeignClientMapper.add(feignClient);
         return new DynamicFeignProxy<>(type, feignClient).get();
     }

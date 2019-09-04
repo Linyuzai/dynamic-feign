@@ -4,12 +4,12 @@ import feign.codec.Encoder;
 
 public interface EncoderWrapper {
 
-    Encoder wrapper(Encoder encoder);
+    Encoder wrapper(String name, Class<?> type, Encoder encoder);
 
     class Default implements EncoderWrapper {
 
         @Override
-        public Encoder wrapper(Encoder encoder) {
+        public Encoder wrapper(String name, Class<?> type, Encoder encoder) {
             return encoder;
         }
     }
